@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "./generated/client"
 }
 
 datasource db {
@@ -8,7 +9,7 @@ datasource db {
 }
 
 model comments {
-  comment_id String   @id @db.VarChar(36)
+  comment_id String   @id @default(uuid()) @db.VarChar(36)
   run_id     String   @db.VarChar(36)
   user_id    String   @db.VarChar(36)
   comment    String   @db.VarChar(255)
@@ -16,7 +17,7 @@ model comments {
 }
 
 model runs {
-  run_id          String    @id @db.VarChar(36)
+  run_id          String    @id @default(uuid()) @db.VarChar(36)
   run_category_id String    @db.VarChar(36)
   user_id         String    @db.VarChar(36)
   vod_url         String    @db.VarChar(255)
