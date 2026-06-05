@@ -3,13 +3,13 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
-import * as crypto from 'crypto';
+import * as bcrypt from 'bcrypt'; // Menggunakan pustaka bcrypt
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
   ) {}
 
   async register(registerDto: RegisterDto) {
@@ -52,7 +52,8 @@ export class AuthService {
       throw new BadRequestException('Email is already registered.');
     }
 
-    const hashedPassword = crypto.createHash('sha256').update(password).digest('base64');
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     await this.prisma.users.create({
       data: {
@@ -77,8 +78,7 @@ export class AuthService {
       throw new BadRequestException('Invalid email or password.');
     }
 
-    const hashedInput = crypto.createHash('sha256').update(password).digest('base64');
-    const isPasswordValid = hashedInput === user.password;
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
       throw new BadRequestException('Invalid email or password.');
